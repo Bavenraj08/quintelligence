@@ -1,7 +1,6 @@
 from langchain_community.document_loaders import PyPDFDirectoryLoader, UnstructuredExcelLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 import chromadb
-from streamlit import pdf
 
 teams = ['finance', 'reference_data']
 for team in teams:
