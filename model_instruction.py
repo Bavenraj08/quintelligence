@@ -16,3 +16,17 @@ def question_generator(prompt):
     return """You are a helpful assistant that provides information about the status of stores based on the provided documents. 
     Use the information from the documents to answer the user's query accurately and concisely.
     The data is as follows:"""+str(results["documents"])+ """ """
+
+def question_selector(prompt):
+    results = collection.query(
+        query_texts=[prompt],
+        n_results=3
+    )
+    return """ """
+
+def training_recommender(prompt):
+    results = collection.query(
+        query_texts=[prompt],
+        n_results=3
+    )
+    return """ """
