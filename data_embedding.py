@@ -16,7 +16,7 @@ for team in teams:
     
     #loading the documents from the specified data path using the PyPDFDirectoryLoader
     globals()[f"{team}_pdf_loader"] = PyPDFDirectoryLoader(globals()[f"{team}_pdf_path"])
-    globals()[f"{team}_excel_loader"] = UnstructuredExcelLoader(globals()[f"{team}_excel_path"])
+    globals()[f"{team}_excel_loader"] = UnstructuredExcelLoader(file_path=globals()[f"{team}_excel_path"], mode="elements")
     globals()[f"{team}_pdf_docs"] = globals()[f"{team}_pdf_loader"].load()
     globals()[f"{team}_excel_docs"] = globals()[f"{team}_excel_loader"].load()
 
@@ -34,18 +34,19 @@ for team in teams:
                 "function": "Reference Data",
                 "document_content": "SOP and functional documents"}
             
-    if team == 'finance':
-        globals()[f"{team}_excel_docs"].metadata = {
-            "source_type": "excel",
-            "department": "Finance",
-            "function": "Account Payable, Order to Cash",
-            "document_content": "Roles, skills, proficiencies, and training documents"}
-    else:
-        globals()[f"{team}_excel_docs"].metadata = {
-            "source_type": "excel",
-            "department": "Operations",
-            "function": "Reference Data",
-            "document_content": "Roles, skills, proficiencies, and training documents"}
+    for doc in globals()[f"{team}_excel_docs"]:     
+        if team == 'finance':
+            doc.metadata = {
+                "source_type": "excel",
+                "department": "Finance",
+                "function": "Account Payable, Order to Cash",
+                "document_content": "Roles, skills, proficiencies, and training documents"}
+        else:
+            doc.metadata = {
+                "source_type": "excel",
+                "department": "Operations",
+                "function": "Reference Data",
+                "document_content": "Roles, skills, proficiencies, and training documents"}
 
     globals()[f"{team}_raw_documents"] = globals()[f"{team}_pdf_docs"] + globals()[f"{team}_excel_docs"]
 
