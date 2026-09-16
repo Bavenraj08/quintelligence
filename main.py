@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from typing import Literal
 from model_instruction import question_generator, question_selector, training_recommender
 from pydantic import BaseModel
 import model
@@ -9,6 +10,8 @@ class AssessmentRequest(BaseModel):
     department_id: str
     function_id: str
     role_id: str
+    difficulty: Literal["EASY", "MODERATE", "HARD"]
+    question_count: int
 
 @app.get("/")
 async def root():
@@ -16,9 +19,12 @@ async def root():
 
 @app.post("/question_generator")
 async def generate(request: AssessmentRequest):
-    prompt = f"""Department ID: {request.department_id}
-            Function ID: {request.function_id}
-            Role ID: {request.role_id}"""
+    prompt = {"Department ID": request.department_id,
+            "Function ID": request.function_id,
+            "Role ID": request.role_id,
+            "Difficulty": request.difficulty,
+            "Question Count": request.question_count
+    }
     model_response = model.invoke(question_generator(prompt), prompt)
     return {"message": model_response}
 

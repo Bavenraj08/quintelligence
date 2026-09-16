@@ -1,32 +1,45 @@
 import chromadb
+from instruction import question_generator_instruction, question_selector_instruction, training_recommender_instruction
 
 #setting up the paths for the data and the chroma database
-data_path = r"data" 
-chroma_path = r"chroma_db" 
+finance_chroma_path = rf"knowledge_source/finance/chroma_db"
+reference_data_chroma_path = rf"knowledge_source/reference_data/chroma_db"
 
 #setting up the Chroma client and creating a collection for storing the documents
-chroma_client = chromadb.PersistentClient(path=chroma_path)
-collection = chroma_client.get_or_create_collection(name="ia_status")
+finance_client = chromadb.PersistentClient(path=finance_chroma_path)
+reference_data_client = chromadb.PersistentClient(path=reference_data_chroma_path)
+fd_guideline_collection = finance_client.get_or_create_collection(name="finance_guideline_collection")
+rd_guideline_collection = reference_data_client.get_or_create_collection(name="reference_data_guideline_collection")
+rd_functional_collection = reference_data_client.get_or_create_collection(name="reference_data_functional_collection")
 
 def question_generator(prompt):
-    results = collection.query(
-        query_texts=[prompt],
-        n_results=3
-    )
-    return """You are a helpful assistant that provides information about the status of stores based on the provided documents. 
-    Use the information from the documents to answer the user's query accurately and concisely.
-    The data is as follows:"""+str(results["documents"])+ """ """
 
-def question_selector(prompt):
-    results = collection.query(
-        query_texts=[prompt],
-        n_results=3
-    )
-    return """ """
+    if "Operation" in prompt["Department ID"]:
+        knowledge_source_B= rd_functional_collection.query(
+            query_texts=[prompt],
+            n_results=3
+        )
+        knowledge_source_A = rd_guideline_collection.query(
+            query_texts=[prompt],
+            n_results=3
+        )
+    else:
+        knowledge_source_A = fd_guideline_collection.query(
+            query_texts=[prompt],
+            n_results=3
+        )
+    return question_generator_instruction(knowledge_source_A, knowledge_source_B)
 
-def training_recommender(prompt):
-    results = collection.query(
-        query_texts=[prompt],
-        n_results=3
-    )
-    return """ """
+# def question_selector(prompt):
+#     knowledge_source_A = collection.query(
+#         query_texts=[prompt],
+#         n_results=3
+#     )
+#     return """ """
+
+# def training_recommender(prompt):
+#     knowledge_source_A = collection.query(
+#         query_texts=[prompt],
+#         n_results=3
+#     )
+#     return """ """

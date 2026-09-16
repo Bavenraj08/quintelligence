@@ -6,10 +6,11 @@ teams = ['finance', 'reference_data']
 for team in teams:
 
     #setting up the paths for the chroma database, client, and collection for each team
-    globals()[f"{team}_chroma_path"] = rf"knowledge_source/{team}" 
-    globals()[f"{team}_chroma_client"] = chromadb.PersistentClient(path=f"{team}_chroma_path")
-    globals()[f"{team}_collection"] = globals()[f"{team}_chroma_client"].get_or_create_collection(name=f"{team}_collection")
-    
+    globals()[f"{team}_chroma_path"] = rf"knowledge_source/{team}/chroma_db" 
+    globals()[f"{team}_chroma_client"] = chromadb.PersistentClient(path=globals()[f"{team}_chroma_path"])
+    globals()[f"{team}_guideline_collection"] = globals()[f"{team}_chroma_client"].get_or_create_collection(name=f"{team}_guideline_collection")
+    globals()[f"{team}_functional_collection"] = globals()[f"{team}_chroma_client"].get_or_create_collection(name=f"{team}_functional_collection")
+
     #setting up the paths for the excel and pdf data
     globals()[f"{team}_excel_path"] = rf"knowledge_source/{team}/excel/{team}.xlsx"
     globals()[f"{team}_pdf_path"] = rf"knowledge_source/{team}/pdf"
@@ -48,13 +49,15 @@ for team in teams:
                 "function": "Reference Data",
                 "document_content": "Roles, skills, proficiencies, and training documents"}
 
-    globals()[f"{team}_raw_documents"] = globals()[f"{team}_pdf_docs"] + globals()[f"{team}_excel_docs"]
+    globals()[f"{team}_guideline_documents"] = globals()[f"{team}_excel_docs"]
+    globals()[f"{team}_functional_documents"] = globals()[f"{team}_pdf_docs"]
 
     #splitting the loaded documents into smaller chunks using the RecursiveCharacterTextSplitter
     textsplitter = RecursiveCharacterTextSplitter(
         chunk_size=300, chunk_overlap=100, length_function=len,is_separator_regex=False)
 
-    chunks = textsplitter.split_documents(globals()[f"{team}_raw_documents"])
+    guideline_chunks = textsplitter.split_documents(globals()[f"{team}_guideline_documents"])
+    functional_chunks = textsplitter.split_documents(globals()[f"{team}_functional_documents"])
 
     #preparing the documents, metadata, and ids for insertion into the Chroma collection
     documents = []
@@ -63,15 +66,29 @@ for team in teams:
 
     i = 0
 
-    for chunk in chunks:
+    for chunk in guideline_chunks:
         documents.append(chunk.page_content)
         metadata.append(chunk.metadata)
         ids.append("ID" + str(i))
         i += 1
 
     #adding the prepared documents, metadata, and ids to the Chroma collection
-    globals()[f"{team}_collection"].upsert(
+    globals()[f"{team}_guideline_collection"].upsert(
         documents=documents,
         metadatas=metadata,
         ids=ids
     )
+
+    for chunk in functional_chunks:
+        documents.append(chunk.page_content)
+        metadata.append(chunk.metadata)
+        ids.append("ID" + str(i))
+        i += 1
+
+    #adding the prepared documents, metadata, and ids to the Chroma collection
+    globals()[f"{team}_functional_collection"].upsert(
+        documents=documents,
+        metadatas=metadata,
+        ids=ids
+    )
+
