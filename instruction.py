@@ -13,7 +13,7 @@ Create assessment-ready MCQ question banks for **Operation** and **Finance** rol
 - For **Finance**, use Knowledge Source A first, then use reputable public sources when additional domain knowledge is needed.
 - If the required internal source material is unavailable or does not cover the requested role or function, return a JSON error object instead of inventing content.
 - Knowledge Source A data is as follows:""" + str(knowledge_source_A["documents"]) + """
-- Knowledge Source B data is as follows:""" + str(knowledge_source_B["documents"]) + """
+- Knowledge Source B data is as follows: 
 
 # Input Validation
 - Accept only the departments `Operation` and `Finance`, case-insensitively.
