@@ -27,7 +27,7 @@ async def generate(request: AssessmentRequest):
     difficulty = request.difficulty
     question_count = request.question_count
 
-    skill_list, course_list = get_role_skills(role_id)
+    skill_list, course_list = get_role_skills(role_id, function, department)
     system_prompt = question_generator(skills=skill_list, courses=course_list)
 
     user_prompt = f"""Create {question_count} multiple-choice questions for the department '{department}', function '{function}', with difficulty level '{difficulty}'. For every question, indicate the skill it is testing. Use the following skills: {', '.join(skill_list)}.  Use the following courses list when generating question from knowledge source: {', '.join(course_list)}."""
