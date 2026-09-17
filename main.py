@@ -1,5 +1,5 @@
 import json
-
+from dataset import get_role_skills
 from fastapi import FastAPI
 from typing import Literal
 from model_instruction import question_generator
@@ -21,14 +21,17 @@ async def root():
 
 @app.post("/question_generator")
 async def generate(request: AssessmentRequest):
-    prompt = {"Department": request.department,
-            "Function": request.function,
-            "Role ID": request.role_id,
-            "Difficulty": request.difficulty,
-            "Question Count": request.question_count
-    }
-    user_prompt = json.dumps(prompt, indent=2)
-    model_response = model.invoke(question_generator(prompt), user_prompt)
+    department = request.department
+    function = request.function
+    role_id = request.role_id
+    difficulty = request.difficulty
+    question_count = request.question_count
+
+    skill_list, course_list = get_role_skills(role_id)
+    system_prompt = question_generator(skills=skill_list, courses=course_list)
+
+    user_prompt = f"""Create {question_count} multiple-choice questions for the department '{department}', function '{function}', with difficulty level '{difficulty}'. For every question, indicate the skill it is testing. Use the following skills: {', '.join(skill_list)}.  Use the following courses list when generating question from knowledge source: {', '.join(course_list)}."""
+    model_response = model.invoke(system_prompt=system_prompt, user_prompt=user_prompt)
     return {"message": model_response}
 
 # @app.post("/question_selector")
