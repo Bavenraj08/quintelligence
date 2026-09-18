@@ -32,15 +32,8 @@ async def generate(request: AssessmentRequest):
 
     user_prompt = f"""Create {question_count} multiple-choice questions for the department '{department}', function '{function}', with difficulty level '{difficulty}'. For every question, indicate the skill it is testing. Use the following skills: {', '.join(skill_list)}.  Use the following courses list when generating question from knowledge source: {', '.join(course_list)}."""
     model_response = model.invoke(system_prompt=system_prompt, user_prompt=user_prompt)
-    return {"message": model_response}
-
-# @app.post("/question_selector")
-# async def select(request: AssessmentRequest):
-#     prompt = f"""Department ID: {request.department_id}
-#             Function ID: {request.function_id}
-#             Role ID: {request.role_id}"""
-#     model_response = model.invoke(question_selector(prompt), prompt)
-#     return {"message": model_response}
+   
+    return json.loads(model_response)
 
 # @app.post("/training_recommender")
 # async def recommend(request: AssessmentRequest):

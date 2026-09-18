@@ -27,7 +27,6 @@ def question_generator(skills, courses):
     instruction = question_generator_instruction(main_knowledge_source)
     return instruction
 
-    #return result
 # def question_selector(prompt):
 #     knowledge_source_A = collection.query(
 #         query_texts=[prompt],
